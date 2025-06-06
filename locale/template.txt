@@ -1,0 +1,22 @@
+# textdomain: online_skins
+
+# ContentDB
+Online Skins=
+Adds online skins database and site to upload your own.=
+
+# Command Description
+Forces loaded skins to reload.=
+
+# Messages
+Reloading...=
+
+# UI
+Page @1 of @2=
+Skin ID: @1=
+Likes: @1=
+<b>Likes:</b> @1=
+Author: @1=
+Previous=
+Next=
+Upload your own skin=
+Opens page in browser to upload skin.=

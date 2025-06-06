@@ -143,7 +143,7 @@ end)
 
 core.register_chatcommand("reload_online_skins", {
     privs = {server = true},
-    description = S("Force loaded skins to reload."),
+    description = S("Forces loaded skins to reload."),
     func = function(name)
         reload_skins()
         core.log("action", "Requested reloading the online skins by " .. name)

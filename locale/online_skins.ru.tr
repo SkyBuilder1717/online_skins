@@ -1,0 +1,22 @@
+# textdomain: online_skins
+
+# ContentDB
+Online Skins=Онлайн Скины
+Adds online skins database and site to upload your own.=Добавляет базу данных онлайн скинов и сайт, чтобы публиковать свои.
+
+# Command Description
+Forces loaded skins to reload.=Заставляет загруженные скины обновиться.
+
+# Messages
+Reloading...=Обновление...
+
+# UI
+Page @1 of @2=Страница @1/@2
+Skin ID: @1=Идентификатор Скина: @1
+Likes: @1=Лайки: @1
+<b>Likes:</b> @1=<b>Лайки:</b> @1
+Author: @1=Автор: @1
+Previous=Предыдущие
+Next=Следующие
+Upload your own skin=Загрузить собственный
+Opens page in browser to upload skin.=Открывает страницу в браузере, чтобы опубликовать скин.

@@ -57,7 +57,7 @@ function online_skins.get_formspec(player, page)
         end
 
         formspec = formspec .. "image_button[" .. px .. "," .. py .. ";1,2;" .. preview .. ";online_skins_ID_" .. skin.id .. ";]"
-        formspec = formspec .. "tooltip[online_skins_ID_" .. skin.id .. ";" .. S("@1@n@nAuthor: @2", skin.description, skin.author) .. "]"
+        formspec = formspec .. "tooltip[online_skins_ID_" .. skin.id .. ";" .. S("Skin ID: @1", skin.id) .. "\n\n".. skin.description .. "\n\n" .. S("Likes: @1", skin.likes) .. "\n" .. S("Author: @1", skin.author) .. "]"
     end
 
     if page > 1 then
@@ -67,7 +67,7 @@ function online_skins.get_formspec(player, page)
         formspec = formspec .. "button[5,5.1;1.5,0.5;online_skins_next_page;" .. S("Next") .. "]"
     end
 
-    formspec = formspec .. "button_url[7.25,5.1;3,0.5;online_skins_upload_skin;" .. S("Upload your own skin") .. ";" .. ONLINE_SKINS_URL .. "/upload]tooltp[online_skins_upload_skin;" .. S("Opens page in browser to upload skin.") .. "]"
+    formspec = formspec .. "button_url[7.25,5.1;3,0.5;online_skins_upload_skin;" .. S("Upload your own skin") .. ";" .. ONLINE_SKINS_URL .. "upload]tooltp[online_skins_upload_skin;" .. S("Opens page in browser to upload skin.") .. "]"
 
     return formspec
 end
@@ -100,8 +100,8 @@ function online_skins.get_sfinv_formspec(player, page)
 
         formspec = formspec .. "image_button[" .. px .. "," .. py .. ";1.15,2.3;" .. preview .. ";online_skins_ID_" .. skin.id .. ";]"
         formspec = formspec .. "tooltip[online_skins_ID_" .. skin.id .. ";" .. skin.description .. "\n\n" .. S("Author: @1", skin.author) .. "]"
-        local hypertext = "<b><big>Skin ID: " .. skin.id .. "</big></b>\n<i>" .. skin.description .. "</i>\n\n<b>Likes:</b> " .. skin.likes .. "\n" .. S("Author: @1", skin.author)
-        formspec = formspec .. "hypertext[5.25,3.5;3,3;description;" .. hypertext .. "]"
+        local hypertext = "<b><big>" .. S("Skin ID: @1", skin.id) .. "</big></b>\n<i>" .. skin.description .. "</i>\n\n" .. S("<b>Likes:</b> @1", skin.likes) .. "\n" .. S("Author: @1", skin.author)
+        formspec = formspec .. "hypertext[5,0.63;3,8;description;" .. hypertext .. "]"
     end
 
     if page > 1 then
@@ -111,7 +111,7 @@ function online_skins.get_sfinv_formspec(player, page)
         formspec = formspec .. "button[6.85,8.5;1.25,0.5;online_skins_next_page;" .. S("Next") .. "]"
     end
 
-    formspec = formspec .. "button_url[4.7,0.13;3,0.5;online_skins_upload_skin;" .. S("Upload your own skin") .. ";" .. ONLINE_SKINS_URL .. "/upload]tooltp[online_skins_upload_skin;" .. S("Opens page in browser to upload skin.") .. "]"
+    formspec = formspec .. "button_url[4.7,0.13;3,0.5;online_skins_upload_skin;" .. S("Upload your own skin") .. ";" .. ONLINE_SKINS_URL .. "upload]tooltp[online_skins_upload_skin;" .. S("Opens page in browser to upload skin.") .. "]"
 
     return formspec
 end
