@@ -1,6 +1,6 @@
 local modname = core.get_current_modname()
 local modpath = core.get_modpath(modname)
-ONLINE_SKINS_URL = 'http://79.174.62.204/'
+ONLINE_SKINS_URL = 'http://79.174.62.204/onlineskins'
 
 online_skins = {
     s = core.get_translator(modname),
