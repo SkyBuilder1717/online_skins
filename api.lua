@@ -79,7 +79,7 @@ function online_skins.sfinv(page, total_pages, start_index, end_index, selected_
     local formspec = "label[5.65,8.5;" .. S("Page @1 of @2", page, total_pages) .. "]"
     for i = start_index, end_index do
         local skin = online_skins.skins[i]
-        local preview = online_skins.get_preview(skin.base64)
+        local preview = online_skins.get_preview(skin.base64, skin.size.x, skin.size.y)
         local idx = i - start_index
         local px = 0.08 + (idx % 4) * 1.05
         local py = 0.13 + math.floor(idx / 4) * 2.25
