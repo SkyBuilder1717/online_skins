@@ -75,7 +75,7 @@ function online_skins.unified_inventory(page, total_pages, start_index, end_inde
     return formspec
 end
 
-function online_skins.sfinv_formspec(page, total_pages, start_index, end_index, selected_skin)
+function online_skins.sfinv(page, total_pages, start_index, end_index, selected_skin)
     local formspec = "label[5.65,8.5;" .. S("Page @1 of @2", page, total_pages) .. "]"
     for i = start_index, end_index do
         local skin = online_skins.skins[i]
