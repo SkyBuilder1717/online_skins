@@ -23,7 +23,7 @@ end
 local function get_skins()
     online_skins.loading = true
     http.fetch({
-        url = ONLINE_SKINS_URL .. "api/skins?sort=likes",
+        url = ONLINE_SKINS_URL .. "api/skins?first=1&sort=likes",
         timeout = 5
     },
     function(data)

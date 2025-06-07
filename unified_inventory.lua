@@ -3,7 +3,7 @@ local S = online_skins.s
 unified_inventory.register_page("online_skins", {
 	get_formspec = function(player, perplayer_formspec)
         local name = player:get_player_name()
-		return {formspec=perplayer_formspec.standard_inv_bg..online_skins.get_formspec(player, online_skins.current_page[name] or 1)}
+		return {formspec=perplayer_formspec.standard_inv_bg..online_skins.get_formspec(player, online_skins.current_page[name] or 1, "unified_inventory")}
 	end,
 })
 
