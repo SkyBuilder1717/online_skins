@@ -1,0 +1,22 @@
+# textdomain: online_skins
+
+# ContentDB
+Online Skins=Skins en Ligne
+Adds online skins database and site to upload your own.=Consulte, utilise et ajoute des skins sur la base de données et permet à de nombreux utilisateurs de l'utiliser ! 
+
+# Command Description
+Forces loaded skins to reload.=Force le rechargement des skins.
+
+# Messages
+Reloading...=Rechargement...
+
+# UI
+Page @1 of @2=Page @1 de @2
+Skin ID: @1=ID de Skin: @1
+Likes: @1=Likes: @1
+<b>Likes:</b> @1=<b>Likes:</b> @1
+Author: @1=Auteur: @1
+Previous=Précédent
+Next=Suivant
+Upload your own skin=Ajoute ton propre skin.
+Opens page in browser to upload skin.=Ouvre la page dans ton navigateur.
