@@ -84,12 +84,11 @@ function online_skins.sfinv(page, total_pages, start_index, end_index, selected_
         local px = 0.08 + (idx % 4) * 1.05
         local py = 0.13 + math.floor(idx / 4) * 2.25
         if skin.id == selected_skin then
-            formspec = formspec .. "style[online_skins_ID_" .. skin.id .. ";bgcolor=green]"
+            local hypertext = "<b><big>" .. S("Skin ID: @1", skin.id) .. "</big></b>\n<i>" .. skin.description .. "</i>\n\n" .. S("<b>Likes:</b> @1", skin.likes) .. "\n" .. S("Author: @1", skin.author)
+            formspec = formspec .. "hypertext[5,0.63;3,8;description;" .. hypertext .. "]style[online_skins_ID_" .. skin.id .. ";bgcolor=green]"
         end
         formspec = formspec .. "image_button[" .. px .. "," .. py .. ";1.15,2.3;" .. preview .. ";online_skins_ID_" .. skin.id .. ";]"
         formspec = formspec .. "tooltip[online_skins_ID_" .. skin.id .. ";" .. skin.description .. "\n\n" .. S("Author: @1", skin.author) .. "]"
-        local hypertext = "<b><big>" .. S("Skin ID: @1", skin.id) .. "</big></b>\n<i>" .. skin.description .. "</i>\n\n" .. S("<b>Likes:</b> @1", skin.likes) .. "\n" .. S("Author: @1", skin.author)
-        formspec = formspec .. "hypertext[5,0.63;3,8;description;" .. hypertext .. "]"
     end
     if page > 1 then
         formspec = formspec .. "button[4.5,8.5;1.25,0.5;online_skins_prev_page;" .. S("Previous") .. "]"
