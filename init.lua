@@ -3,6 +3,7 @@ local modpath = core.get_modpath(modname)
 ONLINE_SKINS_URL = 'http://79.174.62.204/onlineskins/'
 
 online_skins = {
+    version = "0.4",
     s = core.get_translator(modname),
     loading = true,
     players = {},
@@ -12,12 +13,22 @@ online_skins = {
 
 local S = online_skins.s
 
+local function log(msg, type)
+    core.log((type or "action"), "[Online Skins] " .. msg)
+end
+
 local http = core.request_http_api and core.request_http_api()
 if not http then
-    core.log("error",
-        "Online Skins has no access to the Internet. Please add this mod to secure.http_mods to continue."
-    )
+    log("No HTTP access! Check your internet connection or add this mod into `secure.http_mods`.", "error")
     return
+end
+
+local function time(w)
+    log("Time out connection while "..w.."!", "error")
+end
+
+local function success(w, data)
+    log("Unsuccessful connection while "..w.."! ("..data.code..")", "error")
 end
 
 local function get_skins()
@@ -31,13 +42,9 @@ local function get_skins()
             online_skins.loading = false
             online_skins.skins = core.parse_json(data.data)
         elseif data.timeout then
-            core.log("error",
-                "Online Skins has time out connection!"
-            )
+            time("getting skins")
         elseif not data.succeeded then
-            core.log("error",
-                "Online Skins has unsuccessful connection! (".. data.code ..")"
-            )
+            success("getting skins", data)
         end
     end)
 end
@@ -66,17 +73,13 @@ local function check_for_updates()
         if data.completed and data.succeeded then
             local update = core.parse_json(data.data)["update"]
             if update then
-                core.log("action", "Requested reloading the online skins through checking for updates")
+                log("Requested reloading the skins through checking for updates")
                 reload_skins()
             end
         elseif data.timeout then
-            core.log("error",
-                "Online Skins has time out connection while checking for updates!"
-            )
+            time("checking for new skins")
         elseif not data.succeeded then
-            core.log("error",
-                "Online Skins has unsuccessful connection checking for updates! (".. data.code ..")"
-            )
+            success("checking for new skins", data)
         end
     end)
 end
@@ -122,13 +125,9 @@ local function fetch_skin(player, skin_id)
                 online_skins.set_texture(player, def)
             end
         elseif data.timeout then
-            core.log("error",
-                "Online Skins has time out connection while getting skin ID "..skin_id.."!"
-            )
+            time("getting skin ID "..skin_id)
         elseif not data.succeeded then
-            core.log("error",
-                "Online Skins has unsuccessful connection while getting skin ID "..skin_id.."! (".. data.code ..")"
-            )
+            success("getting skin ID "..skin_id, data)
         end
     end)
 end
@@ -146,7 +145,32 @@ core.register_chatcommand("reload_online_skins", {
     description = S("Forces loaded skins to reload."),
     func = function(name)
         reload_skins()
-        core.log("action", "Requested reloading the online skins by " .. name)
+        core.log("action", "Requested reloading skins by " .. name)
+        log("Requested reloading skins by " .. name)
         return true, S("Reloading...")
     end
 })
+
+core.after(1, function()
+    core.log("action", "[Online Skins] Checking for updates...")
+    http.fetch({
+        url = ONLINE_SKINS_URL .. "api/version",
+        timeout = 5
+    },
+    function(data)
+        if data.completed and data.succeeded then
+            local ver = core.parse_json(data.data).version
+            if ver then
+                if not (ver == online_skins.version) then
+                    log("New update found! Download new update to fix bugs and get new features!", "warning")
+                else
+                    log("No new updates.")
+                end
+            end
+        elseif data.timeout then
+            time("checking last version")
+        elseif not data.succeeded then
+            success("checking last version", data)
+        end
+    end)
+end)

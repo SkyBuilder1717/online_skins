@@ -85,7 +85,7 @@ function online_skins.unified_inventory(page, total_pages, start_index, end_inde
     if page < total_pages then
         formspec = formspec .. "button[5,5.1;1.5,0.5;online_skins_next_page;" .. S("Next") .. "]"
     end
-    formspec = formspec .. "button_url[7.25,5.1;3,0.5;online_skins_upload_skin;" .. S("Upload your own skin") .. ";" .. ONLINE_SKINS_URL .. "upload]tooltp[online_skins_upload_skin;" .. S("Opens page in browser to upload skin.") .. "]"
+    formspec = formspec .. "button_url[7.25,5.1;3,0.5;online_skins_upload_skin;" .. S("Upload your own skin") .. ";" .. ONLINE_SKINS_URL .. "upload]"
     return formspec
 end
 
@@ -110,6 +110,6 @@ function online_skins.sfinv(page, total_pages, start_index, end_index, selected_
     if page < total_pages then
         formspec = formspec .. "button[6.85,8.5;1.25,0.5;online_skins_next_page;" .. S("Next") .. "]"
     end
-    formspec = formspec .. "button_url[4.7,0.13;3,0.5;online_skins_upload_skin;" .. S("Upload your own skin") .. ";" .. ONLINE_SKINS_URL .. "upload]tooltp[online_skins_upload_skin;" .. S("Opens page in browser to upload skin.") .. "]"
+    formspec = formspec .. "button_url[4.7,0.13;3,0.5;online_skins_upload_skin;" .. S("Upload your own skin") .. ";" .. ONLINE_SKINS_URL .. "upload]"
     return formspec
 end

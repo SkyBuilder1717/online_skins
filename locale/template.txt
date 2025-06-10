@@ -19,4 +19,3 @@ Author: @1=
 Previous=
 Next=
 Upload your own skin=
-Opens page in browser to upload skin.=
