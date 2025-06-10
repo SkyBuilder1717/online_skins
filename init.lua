@@ -152,7 +152,7 @@ core.register_chatcommand("reload_online_skins", {
 })
 
 core.after(1, function()
-    core.log("action", "[Online Skins] Checking for updates...")
+    log("Checking for updates...")
     http.fetch({
         url = ONLINE_SKINS_URL .. "api/version",
         timeout = 5
