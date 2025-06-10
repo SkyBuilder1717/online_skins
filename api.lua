@@ -7,9 +7,13 @@ end
 
 function online_skins.set_texture(player, def)
     local png = "([png:"..def.base64..")"
+    local width = def.size.x
+    local height = def.size.y
+    
     local texture = png
-    if def.size.x == def.size.y then
-        texture = escape_argument("[combine:" .. def.size.x .. "x" .. math.floor(def.size.y / 2) .. ":0,0=" .. png)
+    if width == height then
+        height = math.floor(height / 2)
+        texture = escape_argument("[combine:" .. width .. "x" .. height .. ":0,0=" .. png)
     end
     player_api.set_texture(player, 1, texture, true)
     local name = player:get_player_name()
