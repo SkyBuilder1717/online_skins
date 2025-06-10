@@ -6,7 +6,12 @@ local function escape_argument(texture_modifier)
 end
 
 function online_skins.set_texture(player, def)
-    player_api.set_texture(player, 1, "[png:"..def.base64, true)
+    local png = "([png:"..def.base64..")"
+    local texture = png
+    if def.size.x == def.size.y then
+        texture = escape_argument("[combine:" .. def.size.x .. "x" .. math.floor(def.size.y / 2) .. ":0,0=" .. png)
+    end
+    player_api.set_texture(player, 1, texture, true)
     local name = player:get_player_name()
     online_skins.players[name] = def
     local meta = player:get_meta()
@@ -14,7 +19,12 @@ function online_skins.set_texture(player, def)
 end
 
 function online_skins.get_preview(base64, width, height)
-    local skin = "([png:" .. base64 .. ")"
+    local skin = "[png:" .. base64
+    if width == height then
+        height = math.floor(height / 2)
+        skin = "[combine:" .. width .. "x" .. height .. ":0,0=" .. escape_argument("(" .. skin .. ")")
+    end
+    skin = "(" .. skin .. ")"
     local modifier = ""
 
     local scaleX = width / 64
