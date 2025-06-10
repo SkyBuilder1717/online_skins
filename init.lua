@@ -160,9 +160,10 @@ core.after(1, function()
     function(data)
         if data.completed and data.succeeded then
             local ver = core.parse_json(data.data).version
+            local veo = online_skins.version
             if ver then
-                if not (ver == online_skins.version) then
-                    log("New update found! Download new update to fix bugs and get new features!", "warning")
+                if not (ver == veo) then
+                    log("New update found! (New: "..ver.."; Old: "..veo..") Download new update to fix bugs and get new features!", "warning")
                 else
                     log("No new updates.")
                 end
