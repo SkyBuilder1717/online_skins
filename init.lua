@@ -2,13 +2,17 @@ local modname = core.get_current_modname()
 local modpath = core.get_modpath(modname)
 ONLINE_SKINS_URL = 'http://79.174.62.204/onlineskins/'
 
+local set = core.settings
+
 online_skins = {
     version = "0.4",
     s = core.get_translator(modname),
     loading = true,
     players = {},
     current_page = {},
-    skins = {}
+    skins = {},
+    pfps = set:get_bool("online_skins.skin_author_pfp", false),
+    users = {}
 }
 
 local S = online_skins.s
@@ -41,6 +45,19 @@ local function get_skins()
         if data.completed and data.succeeded then
             online_skins.loading = false
             online_skins.skins = core.parse_json(data.data)
+            http.fetch({
+                url = ONLINE_SKINS_URL .. "api/users",
+                timeout = 5
+            },
+            function(data)
+                if data.completed and data.succeeded then
+                    online_skins.users = core.parse_json(data.data)
+                elseif data.timeout then
+                    time("getting users")
+                elseif not data.succeeded then
+                    success("getting users", data)
+                end
+            end)
         elseif data.timeout then
             time("getting skins")
         elseif not data.succeeded then
@@ -100,15 +117,6 @@ function player_api.set_texture(player, index, texture, onlineskin)
         online_skins.players[player_name] = nil
     end
     old_set_texture(player, index, texture)
-end
-
-dofile(modpath.."/api.lua")
-
-if core.global_exists("unified_inventory") and unified_inventory then
-    dofile(modpath.."/unified_inventory.lua")
-end
-if core.global_exists("sfinv") and sfinv then
-    dofile(modpath.."/sfinv.lua")
 end
 
 local function fetch_skin(player, skin_id)
@@ -175,3 +183,12 @@ core.after(1, function()
         end
     end)
 end)
+
+dofile(modpath.."/api.lua")
+
+if core.global_exists("unified_inventory") and unified_inventory then
+    dofile(modpath.."/unified_inventory.lua")
+end
+if core.global_exists("sfinv") and sfinv then
+    dofile(modpath.."/sfinv.lua")
+end

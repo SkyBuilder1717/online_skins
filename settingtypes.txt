@@ -1,0 +1,4 @@
+# Adds author's profile picture in sfinv.
+# (May cause some lags on weak servers or devices)
+# Default: disabled
+online_skins.skin_author_pfp (Profile Picture of author) bool false
