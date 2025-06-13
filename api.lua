@@ -1,8 +1,8 @@
 local skins_per_page = 16
 local S = online_skins.s
 
-local function escape_argument(texture_modifier)
-	return texture_modifier:gsub(".", {["\\"] = "\\\\", ["^"] = "\\^", [":"] = "\\:"})
+local function escape_argument(modifier)
+	return modifier:gsub(".", {["\\"] = "\\\\", ["^"] = "\\^", [":"] = "\\:"})
 end
 
 function online_skins.get_user(username)
@@ -26,15 +26,33 @@ function online_skins.set_texture(player, def)
         height = math.floor(height / 2)
         texture = escape_argument("[combine:" .. width .. "x" .. height .. ":0,0=" .. png)
     end
-    player_api.set_texture(player, 1, texture, true)
     local name = player:get_player_name()
     online_skins.players[name] = def
+    if core.get_modpath("3d_armor") then
+        if def.slim then
+            player_api.set_model(player, "3d_armor_character_slim.glb")
+        else
+            player_api.set_model(player, "3d_armor_character.b3d")
+        end
+        armor.textures[name].skin = texture
+        armor:update_player_visuals(player)
+    else
+        if def.slim then
+            player_api.set_model(player, "character_slim.glb")
+        else
+            player_api.set_model(player, "character.b3d")
+        end
+        player_api.set_texture(player, 1, texture, true)
+    end
     local meta = player:get_meta()
     meta:set_int("online_skins_id", def.id)
 end
 
-function online_skins.get_preview(base64, width, height)
-    local skin = "[png:" .. base64
+function online_skins.get_preview(def)
+    local slim = def.slim
+    local width = def.size.x
+    local height = def.size.y
+    local skin = "[png:" .. def.base64
     if width == height then
         height = math.floor(height / 2)
         skin = "[combine:" .. width .. "x" .. height .. ":0,0=" .. escape_argument("(" .. skin .. ")")
@@ -45,13 +63,18 @@ function online_skins.get_preview(base64, width, height)
     local scaleX = width / 64
     local scaleY = height / 32
 
+    local slim_offset = 0
+    if slim then
+        slim_offset = scaleX
+    end
+
     modifier = modifier .. "([combine:" .. (16 * scaleX) .. "x" .. (32 * scaleY) .. ":" .. -16 * scaleX .. "," .. -12 * scaleY .. "=" .. escape_argument(skin) .. "^[mask:online_skins_body_mask.png)^"
     modifier = modifier .. "([combine:" .. (16 * scaleX) .. "x" .. (32 * scaleY) .. ":" .. -4 * scaleX .. "," .. -8 * scaleY .. "=" .. escape_argument(skin) .. "^[mask:online_skins_head_mask.png)^"
     modifier = modifier .. "([combine:" .. (16 * scaleX) .. "x" .. (32 * scaleY) .. ":" .. -36 * scaleX .. "," .. -8 * scaleY .. "=" .. escape_argument(skin) .. "^[mask:online_skins_head_mask.png)^"
-    modifier = modifier .. "([combine:" .. (16 * scaleX) .. "x" .. (32 * scaleY) .. ":" .. -44 * scaleX .. "," .. -12 * scaleY .. "=" .. escape_argument(skin) .. "^[mask:online_skins_left_arm_mask.png)^"
-    modifier = modifier .. "([combine:" .. (16 * scaleX) .. "x" .. (32 * scaleY) .. ":0,0=" .. escape_argument(skin) .. "^[mask:online_skins_left_leg_mask.png)^"
-    modifier = modifier .. "([combine:" .. (16 * scaleX) .. "x" .. (32 * scaleY) .. ":" .. -44 * scaleX .. "," .. -12 * scaleY .. "=" .. escape_argument(skin) .. "^[mask:online_skins_left_arm_mask.png^[transformFX)^"
-    modifier = modifier .. "([combine:" .. (16 * scaleX) .. "x" .. (32 * scaleY) .. ":0,0=" .. escape_argument(skin) .. "^[mask:online_skins_left_leg_mask.png^[transformFX)"
+    modifier = modifier .. "([combine:" .. (16 * scaleX) .. "x" .. (32 * scaleY) .. ":" .. (-44 * scaleX) + slim_offset .. "," .. -12 * scaleY .. "=" .. escape_argument(skin) .. "^[mask:" .. (slim and "online_skins_slim_arm_mask.png" or "online_skins_arm_mask.png") .. ")^"
+    modifier = modifier .. "([combine:" .. (16 * scaleX) .. "x" .. (32 * scaleY) .. ":0,0=" .. escape_argument(skin) .. "^[mask:online_skins_leg_mask.png)^"
+    modifier = modifier .. "([combine:" .. (16 * scaleX) .. "x" .. (32 * scaleY) .. ":" .. (-44 * scaleX) + slim_offset .. "," .. -12 * scaleY .. "=" .. escape_argument(skin) .. "^[mask:" .. (slim and "online_skins_slim_arm_mask.png" or "online_skins_arm_mask.png") .. "^[transformFX)^"
+    modifier = modifier .. "([combine:" .. (16 * scaleX) .. "x" .. (32 * scaleY) .. ":0,0=" .. escape_argument(skin) .. "^[mask:online_skins_leg_mask.png^[transformFX)"
 
     modifier = "(" .. modifier .. ")^[resize:" .. width .. "x" .. height .. "^[mask:online_skins_transform.png"
     return escape_argument(modifier)
@@ -77,7 +100,7 @@ function online_skins.unified_inventory(page, total_pages, start_index, end_inde
     local y = 0.8
     for i = start_index, end_index do
         local skin = online_skins.skins[i]
-        local preview = online_skins.get_preview(skin.base64, skin.size.x, skin.size.y)
+        local preview = online_skins.get_preview(skin)
 
         local idx = i - start_index
         local px = 0.5 + (idx % 8) * 1.25
@@ -104,7 +127,7 @@ function online_skins.sfinv(page, total_pages, start_index, end_index, selected_
     local formspec = "label[5.65,8.5;" .. S("Page @1 of @2", page, total_pages) .. "]"
     for i = start_index, end_index do
         local skin = online_skins.skins[i]
-        local preview = online_skins.get_preview(skin.base64, skin.size.x, skin.size.y)
+        local preview = online_skins.get_preview(skin)
         local idx = i - start_index
         local px = 0.08 + (idx % 4) * 1.05
         local py = 0.13 + math.floor(idx / 4) * 2.25

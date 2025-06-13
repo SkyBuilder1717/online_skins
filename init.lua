@@ -5,7 +5,7 @@ ONLINE_SKINS_URL = 'http://79.174.62.204/onlineskins/'
 local set = core.settings
 
 online_skins = {
-    version = "0.4",
+    version = "0.5",
     s = core.get_translator(modname),
     loading = true,
     players = {},
@@ -184,11 +184,11 @@ core.after(1, function()
     end)
 end)
 
+dofile(modpath.."/models.lua")
 dofile(modpath.."/api.lua")
-
-if core.global_exists("unified_inventory") and unified_inventory then
+if core.get_modpath("unified_inventory") and core.global_exists("unified_inventory") then
     dofile(modpath.."/unified_inventory.lua")
 end
-if core.global_exists("sfinv") and sfinv then
+if core.get_modpath("sfinv") and core.global_exists("sfinv") then
     dofile(modpath.."/sfinv.lua")
 end
