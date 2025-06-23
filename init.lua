@@ -5,7 +5,7 @@ ONLINE_SKINS_URL = 'http://79.174.62.204/onlineskins/'
 local set = core.settings
 
 online_skins = {
-    version = "0.5",
+    version = "0.6",
     s = core.get_translator(modname),
     loading = true,
     players = {},
