@@ -5,6 +5,20 @@ local function escape_argument(modifier)
 	return modifier:gsub(".", {["\\"] = "\\\\", ["^"] = "\\^", [":"] = "\\:"})
 end
 
+local function get(t, v, key)
+    local result
+    local i = 0
+    for _, d in pairs(t) do
+        i = i + 1
+        for k, val in pairs(d) do
+            if k == key and val == v then
+                result = i
+            end
+        end
+    end
+    return result
+end
+
 function online_skins.get_user(username)
     local user = nil
     for _, def in pairs(online_skins.users) do
@@ -123,26 +137,32 @@ function online_skins.unified_inventory(page, total_pages, start_index, end_inde
     return formspec
 end
 
-function online_skins.sfinv(page, total_pages, start_index, end_index, selected_skin, pfp)
+function online_skins.sfinv(page, total_pages, start_index, end_index, selected_skin)
     local formspec = "label[5.65,8.5;" .. S("Page @1 of @2", page, total_pages) .. "]"
+
+    local selected_def = online_skins.skins[get(online_skins.skins, selected_skin, "id")]
+    if selected_def then
+        if online_skins.pfps then
+            local user = online_skins.get_user(selected_def.author)
+            formspec = formspec .. "image[4.7,0.85;1.5,1.5;" .. core.formspec_escape("[png:" .. user.base64) .. "]"
+        end
+        local hypertext = "<b><big>" .. S("Skin ID: @1", selected_def.id) .. "</big></b>\n<i>" .. selected_def.description .. "</i>\n\n" .. S("<b>Likes:</b> @1", selected_def.likes) .. "\n" .. S("Author: @1", selected_def.author)
+        if online_skins.pfps then
+            formspec = formspec .. "hypertext[5,2.2;3,6.5;description;" .. hypertext .. "]style[online_skins_ID_" .. selected_def.id .. ";bgcolor=green]"
+        else
+            formspec = formspec .. "hypertext[5,0.7;3,8;description;" .. hypertext .. "]style[online_skins_ID_" .. selected_def.id .. ";bgcolor=green]"
+        end
+    end
+
     for i = start_index, end_index do
         local skin = online_skins.skins[i]
+        if skin.id == selected_skin then
+            formspec = formspec .. "style[online_skins_ID_" .. skin.id .. ";bgcolor=green]"
+        end
         local preview = online_skins.get_preview(skin)
         local idx = i - start_index
         local px = 0.08 + (idx % 4) * 1.05
         local py = 0.13 + math.floor(idx / 4) * 2.25
-        if skin.id == selected_skin then
-            if online_skins.pfps then
-                local user = online_skins.get_user(skin.author)
-                formspec = formspec .. "image[4.7,0.85;1.5,1.5;" .. core.formspec_escape("[png:" .. user.base64) .. "]"
-            end
-            local hypertext = "<b><big>" .. S("Skin ID: @1", skin.id) .. "</big></b>\n<i>" .. skin.description .. "</i>\n\n" .. S("<b>Likes:</b> @1", skin.likes) .. "\n" .. S("Author: @1", skin.author)
-            if online_skins.pfps then
-                formspec = formspec .. "hypertext[5,2.2;3,6.5;description;" .. hypertext .. "]style[online_skins_ID_" .. skin.id .. ";bgcolor=green]"
-            else
-                formspec = formspec .. "hypertext[5,0.7;3,8;description;" .. hypertext .. "]style[online_skins_ID_" .. skin.id .. ";bgcolor=green]"
-            end
-        end
         formspec = formspec .. "image_button[" .. px .. "," .. py .. ";1,2;" .. preview .. ";online_skins_ID_" .. skin.id .. ";]"
         formspec = formspec .. "tooltip[online_skins_ID_" .. skin.id .. ";" .. skin.description .. "\n\n" .. S("Author: @1", skin.author) .. "]"
     end
