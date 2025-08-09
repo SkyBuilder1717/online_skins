@@ -42,7 +42,7 @@ function online_skins.set_texture(player, def)
     end
     local name = player:get_player_name()
     online_skins.players[name] = def
-    if core.get_modpath("3d_armor") then
+    if core.get_modpath("3d_armor") and core.global_exists("player_api") then
         if def.slim then
             player_api.set_model(player, "3d_armor_character_slim.glb")
         else
@@ -50,13 +50,17 @@ function online_skins.set_texture(player, def)
         end
         armor.textures[name].skin = texture
         armor:update_player_visuals(player)
-    else
+    elseif core.get_modpath("player_api") and core.global_exists("player_api") then
         if def.slim then
             player_api.set_model(player, "character_slim.glb")
         else
             player_api.set_model(player, "character.b3d")
         end
         player_api.set_texture(player, 1, texture, true)
+    elseif core.get_modpath("mcl_player") and core.global_exists("mcl_player") and core.get_modpath("mcl_armor") and core.global_exists("mcl_armor") then
+        mcl_player.player_set_skin(player, texture, true)
+        local model = def.slim and "mcl_armor_character_female.b3d" or "mcl_armor_character.b3d"
+	    mcl_player.player_set_model(player, model)
     end
     local meta = player:get_meta()
     meta:set_int("online_skins_id", def.id)
@@ -97,7 +101,7 @@ end
 function online_skins.get_formspec(player, page, interface)
     local meta = player:get_meta()
     local skin_id = meta:get_int("online_skins_id")
-    local selected_skin = ((skin_id < 1) and 1 or skin_id)
+    local selected_skin = ((skin_id < 1) and (core.global_exists("mcl_armor") and 77 or 1) or skin_id)
 
     local total_skins = #online_skins.skins
     local total_pages = math.ceil(total_skins / skins_per_page)
@@ -138,7 +142,7 @@ function online_skins.unified_inventory(page, total_pages, start_index, end_inde
 end
 
 function online_skins.sfinv(page, total_pages, start_index, end_index, selected_skin)
-    local formspec = "label[5.65,8.5;" .. S("Page @1 of @2", page, total_pages) .. "]"
+    local formspec = "size[8,9.1]label[5.65,8.5;" .. S("Page @1 of @2", page, total_pages) .. "]"
 
     local selected_def = online_skins.skins[get(online_skins.skins, selected_skin, "id")]
     if selected_def then

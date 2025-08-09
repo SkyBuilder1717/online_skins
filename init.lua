@@ -1,11 +1,11 @@
 local modname = core.get_current_modname()
 local modpath = core.get_modpath(modname)
-ONLINE_SKINS_URL = 'http://79.174.62.204/onlineskins/'
+ONLINE_SKINS_URL = 'https://skybuilder.synology.me/onlineskins/'
 
 local set = core.settings
 
 online_skins = {
-    version = "0.6",
+    version = "0.7",
     s = core.get_translator(modname),
     loading = true,
     players = {},
@@ -14,6 +14,7 @@ online_skins = {
     pfps = set:get_bool("online_skins.skin_author_pfp", false),
     users = {}
 }
+local mineclonia = core.get_modpath("mcl_player") and core.global_exists("mcl_player") and core.get_modpath("mcl_armor") and core.global_exists("mcl_armor")
 
 local S = online_skins.s
 
@@ -38,7 +39,7 @@ end
 local function get_skins()
     online_skins.loading = true
     http.fetch({
-        url = ONLINE_SKINS_URL .. "api/skins?first=1&sort=likes",
+        url = ONLINE_SKINS_URL .. "api/skins?first=" .. ((mineclonia) and 77 or 1) .. "&sort=likes",
         timeout = 5
     },
     function(data)
@@ -110,15 +111,6 @@ end
 
 check_updates()
 
-local old_set_texture = player_api.set_texture
-function player_api.set_texture(player, index, texture, onlineskin)
-    local player_name = player:get_player_name()
-    if not onlineskin then
-        online_skins.players[player_name] = nil
-    end
-    old_set_texture(player, index, texture)
-end
-
 local function fetch_skin(player, skin_id)
     http.fetch({
         url = ONLINE_SKINS_URL .. "api/skins?id=" .. skin_id,
@@ -128,7 +120,7 @@ local function fetch_skin(player, skin_id)
         if data.completed and data.succeeded then
             local def = core.parse_json(data.data)[1]
             if not def then
-                fetch_skin(player, 1)
+                fetch_skin(player, ((mineclonia) and 77 or 1))
             else
                 online_skins.set_texture(player, def)
             end
@@ -184,7 +176,57 @@ core.after(1, function()
     end)
 end)
 
-dofile(modpath.."/models.lua")
+if core.get_modpath("player_api") and core.global_exists("player_api") then
+    local old_set_texture = player_api.set_texture
+    function player_api.set_texture(player, index, texture, onlineskin)
+        local player_name = player:get_player_name()
+        if not onlineskin then
+            online_skins.players[player_name] = nil
+        end
+        old_set_texture(player, index, texture)
+    end
+
+    dofile(modpath.."/models.lua")
+elseif mineclonia then
+    local old_player_set_skin = mcl_player.player_set_skin
+    function mcl_player.player_set_skin(player, texture, onlineskin)
+        if not onlineskin then
+            online_skins.players[player:get_player_name()] = nil
+        end
+        old_player_set_skin(player, texture)
+    end
+
+    core.register_chatcommand("onlineskins", {
+        description = "Opens menu with online skins.",
+        func = function(name)
+            core.show_formspec(name, "onlineskins:skins", online_skins.get_formspec(core.get_player_by_name(name), online_skins.current_page[name] or 1, "sfinv"))
+        end
+    })
+
+    core.register_on_player_receive_fields(function(player, formname, fields)
+        if formname ~= "onlineskins:skins" then return end
+
+        local name = player:get_player_name()
+        online_skins.current_page[name] = online_skins.current_page[name] or 1
+
+        if fields.quit then
+            online_skins.current_page[name] = 1
+            return
+        elseif fields.online_skins_prev_page then
+            online_skins.current_page[name] = online_skins.current_page[name] - 1
+        elseif fields.online_skins_next_page then
+            online_skins.current_page[name] = online_skins.current_page[name] + 1
+        else
+            for _, def in pairs(online_skins.skins) do
+                if fields["online_skins_ID_"..def.id] then
+                    online_skins.set_texture(player, def)
+                end
+            end
+        end
+
+        core.show_formspec(name, "onlineskins:skins", online_skins.get_formspec(player, online_skins.current_page[name] or 1, "sfinv"))
+    end)
+end
 dofile(modpath.."/api.lua")
 if core.get_modpath("unified_inventory") and core.global_exists("unified_inventory") then
     dofile(modpath.."/unified_inventory.lua")
