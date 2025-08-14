@@ -150,7 +150,7 @@ function online_skins.sfinv(page, total_pages, start_index, end_index, selected_
             local user = online_skins.get_user(selected_def.author)
             formspec = formspec .. "image[4.7,0.85;1.5,1.5;" .. core.formspec_escape("[png:" .. user.base64) .. "]"
         end
-        local hypertext = (core.global_exists("mcl_formspec") and "<style color='#" .. mcl_formspec.label_color .. "'>" or "") .. "<b><big>" .. S("Skin ID: @1", selected_def.id) .. "</big></b>\n<i>" .. selected_def.description .. "</i>\n\n" .. S("<b>Likes:</b> @1", selected_def.likes) .. "\n" .. S("Author: @1", selected_def.author)
+        local hypertext = (core.global_exists("mcl_formspec") and "<style color='" .. mcl_formspec.label_color .. "'>" or "") .. "<b><big>" .. S("Skin ID: @1", selected_def.id) .. "</big></b>\n<i>" .. selected_def.description .. "</i>\n\n" .. S("<b>Likes:</b> @1", selected_def.likes) .. "\n" .. S("Author: @1", selected_def.author)
         if online_skins.pfps then
             formspec = formspec .. "hypertext[5,2.2;3,6.5;description;" .. hypertext .. "]style[online_skins_ID_" .. selected_def.id .. ";bgcolor=green]"
         else
