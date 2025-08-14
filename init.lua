@@ -140,17 +140,6 @@ core.register_on_joinplayer(function(player)
     end
 end)
 
-core.register_chatcommand("reload_online_skins", {
-    privs = {server = true},
-    description = S("Forces loaded skins to reload."),
-    func = function(name)
-        reload_skins()
-        core.log("action", "Requested reloading skins by " .. name)
-        log("Requested reloading skins by " .. name)
-        return true, S("Reloading...")
-    end
-})
-
 core.after(1, function()
     log("Checking for updates...")
     http.fetch({
@@ -197,9 +186,20 @@ elseif mineclonia then
     end
 
     core.register_chatcommand("onlineskins", {
+        params = "[<reload>]",
         description = "Opens menu with online skins.",
-        func = function(name)
-            core.show_formspec(name, "onlineskins:skins", online_skins.get_formspec(core.get_player_by_name(name), online_skins.current_page[name] or 1, "sfinv"))
+        func = function(name, params)
+            local param = param:gsub("%s+", "")
+            if param == "reload" then
+                reload_skins()
+                core.log("action", "Requested reloading skins by " .. name)
+                log("Requested reloading skins by " .. name)
+                return true, S("Reloading...")
+            elseif param == "" then
+                core.show_formspec(name, "onlineskins:skins", online_skins.get_formspec(core.get_player_by_name(name), online_skins.current_page[name] or 1, "sfinv"))
+            else
+                return false
+            end
         end
     })
 

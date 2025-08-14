@@ -1,5 +1,6 @@
 local skins_per_page = 16
 local S = online_skins.s
+local mcl = core.get_modpath("mcl_player") and core.global_exists("mcl_player") and core.get_modpath("mcl_armor") and core.global_exists("mcl_armor")
 
 local function escape_argument(modifier)
 	return modifier:gsub(".", {["\\"] = "\\\\", ["^"] = "\\^", [":"] = "\\:"})
@@ -57,7 +58,7 @@ function online_skins.set_texture(player, def)
             player_api.set_model(player, "character.b3d")
         end
         player_api.set_texture(player, 1, texture, true)
-    elseif core.get_modpath("mcl_player") and core.global_exists("mcl_player") and core.get_modpath("mcl_armor") and core.global_exists("mcl_armor") then
+    elseif mcl then
         mcl_player.player_set_skin(player, texture, true)
         local model = def.slim and "mcl_armor_character_female.b3d" or "mcl_armor_character.b3d"
 	    mcl_player.player_set_model(player, model)
@@ -150,7 +151,7 @@ function online_skins.sfinv(page, total_pages, start_index, end_index, selected_
             local user = online_skins.get_user(selected_def.author)
             formspec = formspec .. "image[4.7,0.85;1.5,1.5;" .. core.formspec_escape("[png:" .. user.base64) .. "]"
         end
-        local hypertext = "<b><big>" .. S("Skin ID: @1", selected_def.id) .. "</big></b>\n<i>" .. selected_def.description .. "</i>\n\n" .. S("<b>Likes:</b> @1", selected_def.likes) .. "\n" .. S("Author: @1", selected_def.author)
+        local hypertext = (mcl and "<style color='#313131'>" or "") .. "<b><big>" .. S("Skin ID: @1", selected_def.id) .. "</big></b>\n<i>" .. selected_def.description .. "</i>\n\n" .. S("<b>Likes:</b> @1", selected_def.likes) .. "\n" .. S("Author: @1", selected_def.author)
         if online_skins.pfps then
             formspec = formspec .. "hypertext[5,2.2;3,6.5;description;" .. hypertext .. "]style[online_skins_ID_" .. selected_def.id .. ";bgcolor=green]"
         else
