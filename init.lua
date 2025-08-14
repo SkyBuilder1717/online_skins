@@ -189,7 +189,7 @@ elseif mineclonia then
         params = "[<reload>]",
         description = "Opens menu with online skins.",
         func = function(name, params)
-            local param = param:gsub("%s+", "")
+            local param = params:gsub("%s+", "")
             if param == "reload" then
                 reload_skins()
                 core.log("action", "Requested reloading skins by " .. name)
