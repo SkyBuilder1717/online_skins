@@ -197,6 +197,7 @@ elseif mineclonia then
                 return true, S("Reloading...")
             elseif param == "" then
                 core.show_formspec(name, "onlineskins:skins", online_skins.get_formspec(core.get_player_by_name(name), online_skins.current_page[name] or 1, "sfinv"))
+                return true
             else
                 return false
             end
