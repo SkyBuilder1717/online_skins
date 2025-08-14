@@ -2,7 +2,6 @@ player_api.register_model("character_slim.glb", {
 	animation_speed = 1,
 	textures = {"character.png"},
 	animations = {
-		-- Standard animations.
 		stand     = {x = 0,   y = 2.66},
 		lay       = {x = 5.4, y = 5.5, eye_height = 0.3, override_local = true,
 			collisionbox = {-0.6, 0.0, -0.6, 0.6, 0.3, 0.6}},
@@ -21,7 +20,6 @@ player_api.register_model("3d_armor_character_slim.glb", {
 	animation_speed = 1,
 	textures = {"character.png", "blank.png", "blank.png"},
 	animations = {
-		-- Standard animations.
 		stand     = {x = 0,   y = 2.66},
 		lay       = {x = 5.4, y = 5.5, eye_height = 0.3, override_local = true,
 			collisionbox = {-0.6, 0.0, -0.6, 0.6, 0.3, 0.6}},

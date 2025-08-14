@@ -1,4 +1,4 @@
-local S = online_skins.s
+local S = online_skins.translate
 
 unified_inventory.register_page("online_skins", {
 	get_formspec = function(player, perplayer_formspec)

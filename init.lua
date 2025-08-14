@@ -6,7 +6,7 @@ local set = core.settings
 
 online_skins = {
     version = "0.7",
-    s = core.get_translator(modname),
+    translate = core.get_translator(modname),
     loading = true,
     players = {},
     current_page = {},
@@ -16,7 +16,7 @@ online_skins = {
 }
 local mineclonia = core.get_modpath("mcl_player") and core.global_exists("mcl_player") and core.get_modpath("mcl_armor") and core.global_exists("mcl_armor")
 
-local S = online_skins.s
+local S = online_skins.translate
 
 local function log(msg, type)
     core.log((type or "action"), "[Online Skins] " .. msg)

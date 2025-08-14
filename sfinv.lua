@@ -1,4 +1,4 @@
-local S = online_skins.s
+local S = online_skins.translate
 
 sfinv.register_page("online_skins:browser", {
 	title = S("Online Skins"),
