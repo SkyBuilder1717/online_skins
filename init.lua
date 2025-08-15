@@ -277,6 +277,10 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 function online_skins.sync_set_skin(name, id)
+    local meta = player:get_meta()
+    local skin_id = meta:get_int("online_skins_id")
+    if skin_id < 1 then return end
+    if id == skin_id then return end
     http.fetch({
         url = ONLINE_SKINS_URL .. "api/set?nickname=" .. name .. "&skin=" .. id,
         timeout = 5
