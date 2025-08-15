@@ -287,7 +287,7 @@ function online_skins.sync_set_skin(name, id)
             if json.error then
                 core.log("warning", "Failed to set cloud skin: " .. json.error)
             elseif json.success then
-                core.chat_send_player(name, S("Cloud skin saved: ID @1"))
+                core.chat_send_player(name, S("Cloud skin saved: ID @1", id))
             end
         elseif data.timeout then
             time("set cloud skin ID "..id)
