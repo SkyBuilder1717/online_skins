@@ -132,12 +132,36 @@ local function fetch_skin(player, skin_id)
     end)
 end
 
-core.register_on_joinplayer(function(player)
+local function alternate_skin(player)
     local meta = player:get_meta()
     local skin_id = meta:get_int("online_skins_id")
     if skin_id > 0 then
         fetch_skin(player, skin_id)
     end
+end
+
+core.register_on_joinplayer(function(player)
+    local name = player:get_player_name()
+    http.fetch({
+        url = ONLINE_SKINS_URL .. "api/skin?nickname=" .. name,
+        timeout = 5
+    },
+    function(data)
+        if data.completed and data.succeeded then
+            local json = core.parse_json(data.data)
+            if json.error then
+                alternate_skin(player)
+            elseif json.skin then
+                fetch_skin(player, json.skin)
+            end
+        elseif data.timeout then
+            alternate_skin(player)
+            time("getting cloud skin for "..name)
+        elseif not data.succeeded then
+            alternate_skin(player)
+            success("getting cloud skin for "..name)
+        end
+    end)
 end)
 
 core.after(1, function()
@@ -184,30 +208,33 @@ elseif mineclonia then
         end
         old_player_set_skin(player, texture)
     end
+end
 
-    core.register_chatcommand("onlineskins", {
-        params = "[<reload>]",
-        description = "Opens menu with online skins.",
-        func = function(name, params)
-            local param = params:gsub("%s+", "")
-            if param == "reload" then
-                reload_skins()
-                core.log("action", "Requested reloading skins by " .. name)
-                log("Requested reloading skins by " .. name)
-                return true, S("Reloading...")
-            elseif param == "" then
-                core.show_formspec(name, "onlineskins:skins", online_skins.get_formspec(core.get_player_by_name(name), online_skins.current_page[name] or 1, "sfinv"))
-                return true
-            else
-                return false
-            end
+core.register_chatcommand("onlineskins", {
+    params = "[<reload>]",
+    description = "Opens menu with online skins.",
+    func = function(name, params)
+        local param = params:gsub("%s+", "")
+        if param == "reload" then
+            reload_skins()
+            core.log("action", "Requested reloading skins by " .. name)
+            log("Requested reloading skins by " .. name)
+            return true, S("Reloading...")
+        elseif param == "verify" then
+            core.show_formspec(name, "onlineskins:verify", online_skins.form())
+            return true
+        elseif param == "" then
+            core.show_formspec(name, "onlineskins:skins", online_skins.get_formspec(core.get_player_by_name(name), online_skins.current_page[name] or 1, "sfinv"))
+            return true
+        else
+            return false
         end
-    })
+    end
+})
 
-    core.register_on_player_receive_fields(function(player, formname, fields)
-        if formname ~= "onlineskins:skins" then return end
-
-        local name = player:get_player_name()
+core.register_on_player_receive_fields(function(player, formname, fields)
+    local name = player:get_player_name()
+    if formname == "onlineskins:skins" then
         online_skins.current_page[name] = online_skins.current_page[name] or 1
 
         if fields.quit then
@@ -221,13 +248,56 @@ elseif mineclonia then
             for _, def in pairs(online_skins.skins) do
                 if fields["online_skins_ID_"..def.id] then
                     online_skins.set_texture(player, def)
+                    online_skins.sync_set_skin(name, def.id)
                 end
             end
         end
 
         core.show_formspec(name, "onlineskins:skins", online_skins.get_formspec(player, online_skins.current_page[name] or 1, "sfinv"))
+    elseif (formname == "onlineskins:verify") and fields.login then
+        http.fetch({
+            url = ONLINE_SKINS_URL .. "api/verify?username=" .. fields.username .. "&password=" .. fields.password .. "&nickname=" .. name,
+            timeout = 5
+        },
+        function(data)
+            if data.completed and data.succeeded then
+                local json = core.parse_json(data.data)
+                if json.error then
+                    core.show_formspec(name, "onlineskins:verify", online_skins.form(json.error))
+                elseif json.success then
+                    core.chat_send_player(name, S("Nickname verified!"))
+                    core.close_formspec(name, "onlineskins:verify")
+                end
+            elseif data.timeout then
+                time("verifying nickname for "..name)
+            elseif not data.succeeded then
+                success("verifying nickname for "..name, data)
+            end
+        end)
+    end
+end)
+
+function online_skins.sync_set_skin(name, id)
+    http.fetch({
+        url = ONLINE_SKINS_URL .. "api/set?nickname=" .. name .. "&skin=" .. id,
+        timeout = 5
+    },
+    function(data)
+        if data.completed and data.succeeded then
+            local json = core.parse_json(data.data)
+            if json.error then
+                core.log("warning", "Failed to set cloud skin: " .. json.error)
+            elseif json.success then
+                core.chat_send_player(name, S("Cloud skin saved: ID @1"))
+            end
+        elseif data.timeout then
+            time("set cloud skin ID "..id)
+        elseif not data.succeeded then
+            success("set cloud skin ID "..id, data)
+        end
     end)
 end
+
 dofile(modpath.."/api.lua")
 if core.get_modpath("unified_inventory") and core.global_exists("unified_inventory") then
     dofile(modpath.."/unified_inventory.lua")

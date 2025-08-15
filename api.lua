@@ -179,3 +179,16 @@ function online_skins.sfinv(page, total_pages, start_index, end_index, selected_
     formspec = formspec .. "button_url[4.7,0.13;3,0.5;online_skins_upload_skin;" .. S("Upload your own skin") .. ";" .. ONLINE_SKINS_URL .. "upload]"
     return formspec
 end
+
+function online_skins.form(message)
+    if not message then message = "" end
+    local formspec = {
+        "formspec_version[6]",
+        "size[10.5,6.25]",
+        "field[0.2,0.5;10.1,1.4;username;", S("Username"), ";]",
+        "pwdfield[0.2,2.5;10.1,1.4;password;", S("Password"), "]",
+        "button[0.2,4.5;10.1,1.4;login;", S("Verify nickname"), "]",
+        "label[0.2,4.2;", message, "]"
+    }
+    return table.concat(formspec)
+end
