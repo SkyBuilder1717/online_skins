@@ -246,8 +246,8 @@ core.register_on_player_receive_fields(function(player, formname, fields)
         else
             for _, def in pairs(online_skins.skins) do
                 if fields["online_skins_ID_"..def.id] then
-                    online_skins.set_texture(player, def)
                     online_skins.sync_set_skin(name, def.id)
+                    online_skins.set_texture(player, def)
                 end
             end
         end
@@ -277,6 +277,7 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 function online_skins.sync_set_skin(name, id)
+    local player = core.get_player_by_name(name)
     local meta = player:get_meta()
     local skin_id = meta:get_int("online_skins_id")
     if skin_id < 1 then return end

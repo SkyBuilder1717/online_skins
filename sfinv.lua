@@ -19,8 +19,8 @@ sfinv.register_page("online_skins:browser", {
         else
             for _, def in pairs(online_skins.skins) do
                 if fields["online_skins_ID_"..def.id] then
-                    online_skins.set_texture(player, def)
                     online_skins.sync_set_skin(name, def.id)
+                    online_skins.set_texture(player, def)
                 end
             end
         end
