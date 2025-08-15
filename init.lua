@@ -212,7 +212,6 @@ end
 
 core.register_chatcommand("onlineskins", {
     params = "[<reload>]",
-    description = "Opens menu with online skins.",
     func = function(name, params)
         local param = params:gsub("%s+", "")
         if param == "reload" then

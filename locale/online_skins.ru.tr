@@ -4,11 +4,10 @@
 Online Skins=Онлайн Скины
 Adds online skins database and site to upload your own.=Добавляет базу данных онлайн скинов и сайт, чтобы публиковать свои.
 
-# Command Description
-Forces loaded skins to reload.=Заставляет загруженные скины обновиться.
-
 # Messages
 Reloading...=Обновление...
+Cloud skin saved: ID @1=Сохранён обачный скин: ID @1
+Nickname verified!=Никнейм верифицирован!
 
 # UI
 Page @1 of @2=Страница @1/@2
@@ -19,3 +18,6 @@ Author: @1=Автор: @1
 Previous=Предыдущие
 Next=Следующие
 Upload your own skin=Загрузить собственный
+Username=Имя пользователя
+Password=Пароль
+Verify nickname=Верифицировать никнейм
