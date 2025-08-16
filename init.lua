@@ -5,15 +5,14 @@ ONLINE_SKINS_URL = 'https://skybuilder.synology.me/onlineskins/'
 local set = core.settings
 
 online_skins = {
-    version = "0.9",
+    version = "0.8.1",
     translate = core.get_translator(modname),
     loading = true,
     players = {},
     current_page = {},
     skins = {},
     pfps = set:get_bool("online_skins.skin_author_pfp", false),
-    users = {},
-    verified_players = {}
+    users = {}
 }
 local mineclonia = core.get_modpath("mcl_player") and core.global_exists("mcl_player") and core.get_modpath("mcl_armor") and core.global_exists("mcl_armor")
 
@@ -153,11 +152,7 @@ core.register_on_joinplayer(function(player)
             if json.error then
                 alternate_skin(player)
             elseif json.skin then
-                if online_skins.verified_players[name] and (online_skins.verified_players[name].owner == json.owner) then
-                    fetch_skin(player, json.skin)
-                else
-                    alternate_skin(player)
-                end
+                fetch_skin(player, json.skin)
             end
         elseif data.timeout then
             alternate_skin(player)
@@ -227,8 +222,6 @@ core.register_chatcommand("onlineskins", {
         elseif param == "verify" then
             core.show_formspec(name, "onlineskins:verify", online_skins.form())
             return true
-        elseif param == "version" then
-            return true, S("v@1", online_skins.version)
         elseif param == "" then
             core.show_formspec(name, "onlineskins:skins", online_skins.get_formspec(core.get_player_by_name(name), online_skins.current_page[name] or 1, "sfinv"))
             return true
@@ -272,8 +265,6 @@ core.register_on_player_receive_fields(function(player, formname, fields)
                     core.show_formspec(name, "onlineskins:verify", online_skins.form(json.error))
                 elseif json.success then
                     core.chat_send_player(name, S("Nickname verified!"))
-                    online_skins.verified_players[name] = {owner = fields.username}
-                    online_skins.save_verified_players()
                     core.close_formspec(name, "onlineskins:verify")
                 end
             elseif data.timeout then
@@ -286,7 +277,6 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 function online_skins.sync_set_skin(name, id)
-    if not online_skins.verified_players[name] then return end
     local player = core.get_player_by_name(name)
     local meta = player:get_meta()
     local skin_id = meta:get_int("online_skins_id")
