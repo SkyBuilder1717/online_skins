@@ -211,7 +211,7 @@ elseif mineclonia then
 end
 
 core.register_chatcommand("onlineskins", {
-    params = "[<reload>]",
+    params = "[<reload | verify>]",
     func = function(name, params)
         local param = params:gsub("%s+", "")
         if param == "reload" then
