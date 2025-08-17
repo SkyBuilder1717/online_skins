@@ -134,6 +134,7 @@ end
 
 local function alternate_skin(player)
     local meta = player:get_meta()
+    if not meta then return end
     local skin_id = meta:get_int("online_skins_id")
     if skin_id > 0 then
         fetch_skin(player, skin_id)
