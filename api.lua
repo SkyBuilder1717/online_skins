@@ -29,13 +29,13 @@ function online_skins.set_texture(player, def)
     local width  = def.size.x
     local height = def.size.y
 
-    local png = string.format("([png:%s)", def.base64)
+    local png = string.format("[png:%s", def.base64)
     local texture = png
 
     if width == height then
         height = math.floor(height / 2)
         texture = escape_argument(string.format(
-            "[combine:%dx%d:0,0=%s",
+            "([combine:%dx%d:0,0=%s)",
             width, height, png
         ))
     end
@@ -70,73 +70,40 @@ function online_skins.set_texture(player, def)
 end
 
 function online_skins.get_preview(def)
-    local cached = online_skins.preview_cache[def.id]
-    if cached then
-        return cached
-    end
-
-    local width  = def.size.x
+    local slim = def.slim
+    local width = def.size.x
     local height = def.size.y
-    local slim   = def.slim
-
     local skin = string.format("[png:%s", def.base64)
-
     if width == height then
         height = math.floor(height / 2)
-        skin = string.format(
-            "[combine:%dx%d:0,0=(%s)",
-            width, height, skin
-        )
+        skin = string.format("[combine:%sx%s:0,0=%s", width, height, escape_argument(string.format("(%s)", skin)))
     end
-
     skin = string.format("(%s)", skin)
+    local modifier = ""
+
+    local sx = width / 64
+    local sy = height / 32
+
+    local so = slim and sx or 0
+    local sa = slim and "online_skins_slim_arm_mask.png" or "online_skins_arm_mask.png"
+
     skin = escape_argument(skin)
 
-    local sx = width  / 64
-    local sy = height / 32
-    local so = slim and sx or 0
+    modifier = modifier .. string.format("([combine:%sx%s:%s,%s=%s^[mask:online_skins_body_mask.png)^", 16*sx, 32*sy, -16*sx, -12*sy, skin)
+    modifier = modifier .. string.format("([combine:%sx%s:%s,%s=%s^[mask:online_skins_head_mask.png)^", 16*sx, 32*sy, -4*sx, -8*sy, skin)
+    modifier = modifier .. string.format("([combine:%sx%s:%s,%s=%s^[mask:online_skins_head_mask.png)^", 16*sx, 32*sy, -36*sx, -8*sy, skin)
+    modifier = modifier .. string.format("([combine:%sx%s:%s,%s=%s^[mask:%s)^", 16*sx, 32*sy, -44*sx+so, -12*sy, skin, sa)
+    modifier = modifier .. string.format("([combine:%sx%s:0,0=%s^[mask:online_skins_leg_mask.png)^", 16*sx, 32*sy, skin)
+    modifier = modifier .. string.format("([combine:%sx%s:%s,%s=%s^[mask:%s^[transformFX)^", 16*sx, 32*sy, -44*sx+so, -12*sy, skin, sa)
+    modifier = modifier .. string.format("([combine:%sx%s:0,0=%s^[mask:online_skins_leg_mask.png^[transformFX)", 16*sx, 32*sy, skin)
 
-    local arm_mask = slim
-        and "online_skins_slim_arm_mask.png"
-        or  "online_skins_arm_mask.png"
-
-    local parts = {
-        string.format("([combine:%fx%f:%f,%f=%s^[mask:online_skins_body_mask.png)^",16*sx,32*sy,-16*sx,-12*sy,skin),
-        string.format("([combine:%fx%f:%f,%f=%s^[mask:online_skins_head_mask.png)^",16*sx,32*sy,-4*sx,-8*sy,skin),
-        string.format("([combine:%fx%f:%f,%f=%s^[mask:online_skins_head_mask.png)^",16*sx,32*sy,-36*sx,-8*sy,skin),
-        string.format("([combine:%fx%f:%f,%f=%s^[mask:%s)^",16*sx,32*sy,(-44*sx)+so,-12*sy,skin,arm_mask),
-        string.format("([combine:%fx%f:0,0=%s^[mask:online_skins_leg_mask.png)^",16*sx,32*sy,skin),
-        string.format("([combine:%fx%f:%f,%f=%s^[mask:%s^[transformFX)^",16*sx,32*sy,(-44*sx)+so,-12*sy,skin,arm_mask),
-        string.format("([combine:%fx%f:0,0=%s^[mask:online_skins_leg_mask.png^[transformFX)",16*sx,32*sy,skin)
-    }
-
-    local modifier = string.format(
-        "(%s)^[resize:%dx%d^[mask:online_skins_transform.png",
-        table.concat(parts),
+    modifier = string.format(
+        "(%s)^[resize:%sx%s^[mask:online_skins_transform.png",
+        modifier,
         width,
         height
     )
-
-    modifier = escape_argument(modifier)
-    online_skins.preview_cache[def.id] = modifier
-    return modifier
-end
-
-function online_skins.get_formspec(player, page, interface)
-    local meta = player:get_meta()
-    local skin_id = meta:get_int("online_skins_id")
-    local selected = (skin_id < 1)
-        and (core.global_exists("mcl_armor") and 77 or 1)
-        or skin_id
-
-    local total = #online_skins.skins
-    local pages = math.max(1, math.ceil(total / skins_per_page))
-    page = math.max(1, math.min(page or 1, pages))
-
-    local start_i = (page - 1) * skins_per_page + 1
-    local end_i   = math.min(start_i + skins_per_page - 1, total)
-
-    return online_skins[interface](page, pages, start_i, end_i, selected)
+    return escape_argument(modifier)
 end
 
 function online_skins.unified_inventory(page, pages, start_i, end_i, selected)
@@ -182,7 +149,101 @@ function online_skins.unified_inventory(page, pages, start_i, end_i, selected)
     fs[#fs+1] = string.format(
         "button_url[7.25,5.1;3,0.5;online_skins_upload_skin;%s;%s]",
         F(S("Upload your own skin")),
-        ONLINE_SKINS_URL .. "upload"
+        string.format("%s/upload", ONLINE_SKINS_URL)
+    )
+
+    return table.concat(fs)
+end
+
+function online_skins.sfinv(page, pages, start_i, end_i, selected)
+    local fs = {
+        "size[8,9.1]",
+        string.format("label[5.65,8.5;%s]", F(S("Page @1 of @2", page, pages)))
+    }
+
+    local selected_def = online_skins.skins_by_id and online_skins.skins_by_id[selected]
+    if selected_def then
+        if online_skins.pfps then
+            local user = online_skins.users_by_name and online_skins.users_by_name[selected_def.author]
+            if user and user.base64 then
+                fs[#fs + 1] = string.format(
+                    "image[4.7,0.85;1.5,1.5;%s]",
+                    core.formspec_escape(string.format("[png:%s", user.base64))
+                )
+            end
+        end
+
+        local hyper = {
+            core.global_exists("mcl_formspec") and
+                string.format("<style color='%s'>", mcl_formspec.label_color) or "",
+            string.format("<b><big>%s</big></b>", F(S("Skin ID: @1", selected_def.id))),
+            "\n",
+            string.format("<i>%s</i>", selected_def.description),
+            "\n\n",
+            F(S("<b>Likes:</b> @1", selected_def.likes)),
+            "\n",
+            F(S("Author: @1", selected_def.author))
+        }
+
+        if online_skins.pfps then
+            fs[#fs + 1] = string.format(
+                "hypertext[5,2.2;3,6.5;description;%s]style[online_skins_ID_%d;bgcolor=green]",
+                table.concat(hyper),
+                selected_def.id
+            )
+        else
+            fs[#fs + 1] = string.format(
+                "hypertext[5,0.7;3,8;description;%s]style[online_skins_ID_%d;bgcolor=green]",
+                table.concat(hyper),
+                selected_def.id
+            )
+        end
+    end
+
+    for i = start_i, end_i do
+        local skin = online_skins.skins[i]
+        local idx = i - start_i
+        local px = 0.08 + (idx % 4) * 1.05
+        local py = 0.13 + math.floor(idx / 4) * 2.25
+
+        if skin.id == selected then
+            fs[#fs + 1] = string.format("style[online_skins_ID_%d;bgcolor=green]", skin.id)
+        end
+
+        fs[#fs + 1] = string.format(
+            "image_button[%f,%f;1,2;%s;online_skins_ID_%d;]",
+            px,
+            py,
+            online_skins.get_preview(skin),
+            skin.id
+        )
+
+        fs[#fs + 1] = string.format(
+            "tooltip[online_skins_ID_%d;%s\n\n%s]",
+            skin.id,
+            skin.description,
+            F(S("Author: @1", skin.author))
+        )
+    end
+
+    if page > 1 then
+        fs[#fs + 1] = string.format(
+            "button[4.5,8.5;1.25,0.5;online_skins_prev_page;%s]",
+            F(S("Previous"))
+        )
+    end
+
+    if page < pages then
+        fs[#fs + 1] = string.format(
+            "button[6.85,8.5;1.25,0.5;online_skins_next_page;%s]",
+            F(S("Next"))
+        )
+    end
+
+    fs[#fs + 1] = string.format(
+        "button_url[4.7,0.13;3,0.5;online_skins_upload_skin;%s;%s]",
+        F(S("Upload your own skin")),
+        string.format("%s/upload", ONLINE_SKINS_URL)
     )
 
     return table.concat(fs)
@@ -198,4 +259,21 @@ function online_skins.form(message)
         string.format("label[0.2,4.2;%s]", message or "")
     }
     return table.concat(fs)
+end
+
+function online_skins.get_formspec(player, page, interface)
+    local meta = player:get_meta()
+    local skin_id = meta:get_int("online_skins_id")
+    local selected = (skin_id < 1)
+        and (core.global_exists("mcl_armor") and 77 or 1)
+        or skin_id
+
+    local total = #online_skins.skins
+    local pages = math.max(1, math.ceil(total / skins_per_page))
+    page = math.max(1, math.min(page or 1, pages))
+
+    local start_i = (page - 1) * skins_per_page + 1
+    local end_i   = math.min(start_i + skins_per_page - 1, total)
+
+    return online_skins[interface](page, pages, start_i, end_i, selected)
 end

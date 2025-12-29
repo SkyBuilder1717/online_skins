@@ -1,4 +1,5 @@
 local S = online_skins.translate
+local F = core.formspec_escape
 
 unified_inventory.register_page("online_skins", {
 	get_formspec = function(player, perplayer_formspec)
@@ -10,7 +11,7 @@ unified_inventory.register_page("online_skins", {
 unified_inventory.register_button("online_skins", {
 	type = "image",
 	image = "online_skins_button.png",
-	tooltip = S("Online Skins")
+	tooltip = F(S("Online Skins"))
 })
 
 core.register_on_player_receive_fields(function(player, formname, fields)

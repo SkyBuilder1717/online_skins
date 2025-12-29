@@ -1,7 +1,8 @@
 local S = online_skins.translate
+local F = core.formspec_escape
 
 sfinv.register_page("online_skins:browser", {
-	title = S("Online Skins"),
+	title = F(S("Online Skins")),
 	get = function(self, player, context)
         local name = player:get_player_name()
 		return sfinv.make_formspec(player, context, online_skins.get_formspec(player, online_skins.current_page[name] or 1, "sfinv"))
