@@ -63,6 +63,7 @@ local function get_skins()
             }, function(data2)
                 if data2.completed and data2.succeeded then
                     online_skins.users = core.parse_json(data2.data)
+                    online_skins.rebuild_indexes()
                 elseif data2.timeout then
                     time("getting users")
                 elseif not data2.succeeded then
