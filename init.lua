@@ -280,12 +280,19 @@ core.register_on_player_receive_fields(function(player, formname, fields)
     elseif formname == "onlineskins:verify" and fields.login then
         http.fetch({
             url = string.format(
-                "%s/api/v1/verify/?username=%s&password=%s&nickname=%s",
+                "%s/api/v1/verify/",
                 ONLINE_SKINS_URL,
                 fields.username,
                 fields.password,
                 name
             ),
+            method = "POST",
+            extra_headers = {"Content-Type: application/json"},
+            data = core.write_json({
+                username = fields.username,
+                password = fields.password,
+                nickname = name
+            }),
             timeout = 5
         }, function(data)
             if data.completed and data.succeeded then
@@ -313,11 +320,15 @@ function online_skins.sync_set_skin(name, id)
     if current < 1 or current == id then return end
     http.fetch({
         url = string.format(
-            "%s/api/v1/set/?nickname=%s&skin=%d",
-            ONLINE_SKINS_URL,
-            name,
-            id
+            "%s/api/v1/set/",
+            ONLINE_SKINS_URL
         ),
+        method = "POST",
+        extra_headers = {"Content-Type: application/json"},
+        data = core.write_json({
+            nickname = name,
+            skin = id
+        }),
         timeout = 5
     }, function(data)
         if data.completed and data.succeeded then
