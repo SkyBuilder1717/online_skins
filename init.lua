@@ -5,7 +5,7 @@ ONLINE_SKINS_URL = "https://skybuilder.synology.me/onlineskins"
 local settings = core.settings
 
 online_skins = {
-    version = "0.8.4",
+    version = "0.8.5",
     translate = core.get_translator(modname),
     loading = true,
     players = {},
