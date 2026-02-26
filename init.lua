@@ -1,11 +1,11 @@
 local modname = core.get_current_modname()
 local modpath = core.get_modpath(modname)
-ONLINE_SKINS_URL = "https://skybuilder.synology.me/onlineskins"
+ONLINE_SKINS_URL = "https://skybuilder1717.ru/onlineskins"
 
 local settings = core.settings
 
 online_skins = {
-    version = "0.8.5",
+    version = "0.8.6",
     translate = core.get_translator(modname),
     loading = true,
     players = {},
